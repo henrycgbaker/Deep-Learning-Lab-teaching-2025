@@ -1,0 +1,143 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{hyperref}
+\usepackage{verbatim}
+
+\title{Problem set 1 \\
+Deep Learning E1394}
+
+\author{}
+\date{Out on Sept 19, 2025 \\
+Due on Oct 3, 2025, 23:59 \\
+Quiz in labs after due date}
+
+\begin{document}
+
+\maketitle
+
+\noindent \textbf{Submit your written answers as a pdf typed in \LaTeX together with your code. Submit one answer per group (as assigned on Moodle) and include names of all group members in the document. Round answers to two decimal places as needed. Include references to any external sources you have consulted, which includes generative AI tools for which you additionally need to describe what content was generated. Points are deducted if those were used but not cited.
+See ``Submission'' at the bottom of the problem set for more details on how to submit using Github classroom.}
+
+\section{Theoretical part}
+These are some recap and refresher problems to get you up to speed with the mathematics and statistical learning that is behind deep learning, as well as problems that help you work out how neural networks are trained.
+
+
+
+\subsection{Optimization}
+
+Let $f: \mathbb{R}^3 \rightarrow \mathbb{R}$ be defined by $f(x,y,z)=x^2+y^2+z^2 - xyz$. Identify and classify all critical points of $f$. You may use tools like Wolfram Alpha to help you with eigenvalues.  \\
+
+
+
+
+
+\subsection{Activation functions}
+Compute the gradient of the function 
+\begin{align}
+    f(b,w) = ReLU(b+xw)=\left\{
+    \begin{array}{ll}
+      0  & \text{if} \ \ b+xw <0\\
+      b+xw   & \text{if} \ \  b+xw\geq 0
+    \end{array}
+  \right
+\end{align}
+
+with respect to the parameters $b$ and $w$, with $x,b,w \in \mathbb{R}$.
+
+        
+
+
+
+\subsection{Overfitting}        
+
+This question will test your general understanding of overfitting as it relates to model complexity and training set size. Consider a continuous domain and a smooth joint distribution over inputs and outputs, so that no test or training case is ever duplicated exactly. {\it The graphs in your solutions should be drawn on paper and then included as a picture. In your answers describe how how your graphs should be read.}
+
+\subsubsection{Error rate versus dataset size}    
+Sketch a graph of the typical behavior of training error rate (y-axis) as a function of training set size (x-axis). Add to this graph a curve showing the typical behavior of test error rate versus training set size, on the same axes. (Assume that we have an infinite test set drawn independently from the same joint distribution as the training set). Indicate on your y-axis where zero error is and draw your graphs with increasing error upwards and increasing training set size rightwards. \\
+    
+
+\subsubsection{Error rate versus model complexity}
+For a fixed training set size, sketch a graph of the typical behavior of training error rate (y-axis) versus model complexity (x-axis). Add to this graph a curve showing the typical behavior of the corresponding test error rate versus model complexity, on the same axes (again on an IID infinite test set). Show where on the x-axis you think is the most complex model that your data supports (mark this with a vertical line). Choose the x-range so that this line is neither on the extreme left nor on the extreme right. Indicate on your vertical axis where zero error is and draw your graphs with increasing error upwards and increasing complexity rightwards. \\
+
+
+\subsubsection{Training epochs}
+Use a similar graph to illustrate the error rate as a function of training epochs in neural networks. One of the commonly used regularization methods in neural networks is early stopping. Describe (also using the graph) how early stopping is applied, and argue qualitatively why (or why not) early stopping is a reasonable regularization metric. 
+    \\
+
+
+\subsection{Capacity of a neural network}
+We have a single hidden-layer neural network with two hidden units, and data with 2 features $X=(x_1,x_2)$. Design an activation function $g(\cdot)$ applied in the hidden layer, and an output activation function  $o(\cdot)$ applied in the output layer, as well as a set of values of the weights that will create a logistic regression model where the input to the logistic function is of the form: $\beta_0 + \beta_1 x_1 x_2$.
+
+\subsection{Neural network theory}\label{sec:part1}
+Derive the weight updates in gradient descent for a neural network with 2 hidden layers (superscripts $[1]$ and $[2]$) that each have $H^{[1]}$ and $H^{[2]}$ hidden units respectively. The output layer has superscript $[3]$, and we want to classify the data into $K$ classes.
+
+The output of the network for classes $k=1,2,...,K$ and one data point $x\in \mathbb{R}^d$ can be written as such:
+      \begin{align}
+          f_k(\theta; X)&= o(a_k^{[3]}) = o(b_k^{[3]}+\sum_{m=1}^{H^{[2]}} w_{km}^{[3]} h_m^{[2]}) \\ 
+          h_m^{[2]} &= \sigma\left(a_m^{[2]} \right)  = \sigma\left(b_m^{[2]}+\sum_{i=1}^{H^{[1]}} w_{mi}^{[2]} h_i^{[1]} \right) \\
+          h_i^{[1]} &= \sigma\left(a_i^{[1]} \right) = \sigma\left(b_i^{[1]}+\sum_{j=1}^d w_{ij}^{[1]} x_j \right), 
+      \end{align}
+where $\theta$ indicates the vector of all weights and biases. 
+
+While this is typically not recommended, in this exercise we use a a quadratic loss function for classification. We use a softmax activation function at the output layer and a ReLU activation function at the hidden layers. Derive the the weight update for the weights of the first hidden layer $w_{ij}^{[1]}$. Start by stating the gradient descent weight update for the $(r+1)^{th}$ iteration as a function of the $(r)^{th}$ iteration, and then compute the partial derivative needed in the update. 
+
+{\it  Show all the steps in your derivation. You may use the derivatives for activation functions introduced in class. There is no need to show the derivations of those.}
+
+
+
+
+
+\section{Neural network implementation}
+You will implement different classes representing a fully connected neural network for image classification problems. 
+There are two classes of neural networks: one using only Numpy and one using PyTorch. \newline \newline
+For each approach, a Python template is supplied that you will need to complete with the missing methods. Feel free to play around with the rest, but please do not change anything else for the submission. All approaches will solve the same classification task, which will help you validate that your code is working and that the network is training properly. \newline \newline
+For this problem, you will work with the \href{https://en.wikipedia.org/wiki/MNIST_database}{MNIST dataset} of handwritten digits, which has been widely used for training image classification models. You will build models for a multiclass classification task, where the goal is to predict what digit is written in an image (to be precise, this is a k-class classification task where in this case $K = 10$). The MNIST dataset consists of black and white images of digits from 0 to 9 with a pixel resolution of 28x28. Therefore, in a tensor representation the images have the shape 28x28x1. The goal is to classify what digit is drawn on a picture using a neural network  defined by the following parameters:
+\begin{itemize}
+    \setlength\itemsep{0em}
+    \item a list defining the number of neurons in each layer, e.g. list $l = [2^6, 2^4, 3]$ defines a network with 3 hidden layers of dimensions $2^6, 2^4$ and 3.
+    \item sigmoid activation function for all hidden layers
+    \item softmax activation function for the output layer
+    \item Mean Squared Loss Function.\text{*}
+\end{itemize}
+\text{*} This loss function is not recommended for a classification task, but we use it to simplify the implementation.
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.2]{Fall 2025/Quiz/img/MNIST-few-examples.png}}
+\caption{Example images from MNIST dataset with 28x28 pixel resolution.}
+\end{figure}
+The training set has $n$ data vectors with:
+\begin{align}
+    (x^{(i)}, y^{(i)}), \  i = 1, . . . , n,
+\end{align}
+with $y^{(i)} \in \{0, 1\}^{k}$ is the one-hot encoded target vector. The output of the model in the forward step should be a vector of probabilities. The predict step should instead return the most likely output class.  
+\subsection*{Submission}
+The submission of the whole problem set is done via GitHub classroom. You have to register for the assignment with your GitHub account at \textbf{\url{https://classroom.github.com/a/WPCxMZMM}}; a repository will be automatically created. Please make sure that your GitHub account profile includes your real name and that the team names are exactly those assigned in Moodle.\newline \newline
+Please push all solutions to the GitHub repository. The theoretical part should be uploaded as a single PDF, the practical as code. Multiple submits are allowed, the latest one will be graded. Once the deadline has passed, you will be able to push but points will be deducted for every late day. Please also submit the PDF with the answers to the theoretical part to Moodle as well.
+\newline \newline Please add team number, team member names and matriculation numbers also as a comment at the top of the Jupyter notebook and make sure that the uploaded Notebook shows printed training and validation progress. Include the team number in the file name of the PDF. \newline \newline
+Note that the classifier does not need to get anywhere close to 100\% accuracy. Instead, the training output should indicate that the model learns something, i.e.~the accuracy increases over the epochs on the training data and is significantly better than random guessing.
+
+\subsection*{Tasks}
+\begin{enumerate}
+    \item (15 pt) Complete the code for the feed-forward neural network classes from scratch in file \verb|scratch\network.py| and using PyTorch in file \verb|pytorch\network.py| by implementing forward, backward, weight update and prediction methods.
+    \item (15 pt) Add a residual connection to the hidden layer of the feed-forward neural network: instead of just outputting the activated neuron, the layer should add the input to the hidden layer to it. Implement the initialization, forward and backward step of the residual network from scratch in \verb|scratch\res_network.py|. The class inherits from the class created in 1. 
+    \item (5 pt) Implement a cosine annealing learning rate scheduler for the \verb|scratch\network.py|. The scheduler should decrease the learning rate $\ell_t$ according to the formula: 
+    $$\ell_t=\ell_T+\frac{\ell_0-\ell_T}{2}\left(1+\cos \left(\frac{\pi t}{T}\right)\right)$$
+    where $\ell_0$ is the initial learning rate, $\ell_T$ is the final learning rate after $T$ iterations. 
+    \item (10 pt) Show how your networks perform on the MNIST classification task in \verb|MNIST_classification.ipynb| and plot the accuracy of each neural network on the training and on the validation set. 
+    \item (5 pt) Optional: try different hyperparameters and evaluate the trained networks. Briefly comment your results.
+\end{enumerate}
+
+
+
+
+
+\end{document}

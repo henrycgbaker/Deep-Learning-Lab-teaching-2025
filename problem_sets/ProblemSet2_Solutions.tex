@@ -1,0 +1,217 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{hyperref}
+
+\title{Problem Set 2 -- Solutions (theoretical part) \\
+Deep Learning E1394}
+
+\author{}
+\date{Out on Oct 3, 2025 \\
+Due on Oct 17, 2025, at 23:59}
+
+\begin{document}
+
+\maketitle
+
+\noindent \textbf{Submit your written answers as a pdf typed in \LaTeX together with your code. Submit one answer per group (as assigned on Moodle) and include names of all group members in the document. Round answers to two decimal places as needed. Include references to any external sources you have consulted, which includes generative AI tools for which you additionally need to describe what content was generated. Points are deducted if those were used but not cited.
+See ``Submission'' at the bottom of the problem set for more details on how to submit using Github classroom.}
+\section{Convolutional neural networks}
+
+\subsection{Kernels (7 pts)}
+\begin{enumerate}[label=(\alph*)]
+    \item Design a $3\times3$ kernel that leaves the input image unchanged. Describe also how you may need to modify the input image before applying the kernel so that the output stays the same. \\
+    \textbf{Solution:} $K=\begin{bmatrix} 0 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 0 \end{bmatrix}$ (with padding of the input image). % Kernel 2 points, padding 1 point
+    \item How does the following kernel modify an input image: $K=\frac{1}{16}\begin{bmatrix} 1 & 1 & 1 &1 \\ 1 & 1 & 1 &1 \\ 1 & 1 & 1 &1 \\ 1 & 1 & 1 &1 \end{bmatrix}$? \\     
+     \textbf{Solution:} This is a kernel that makes an image look blurry when applied to it.  % 2 points\\  
+    %\item Design a kernel that makes an image look sharper by emphasizing differences in adjacent pixel values when applied to it. \\
+    %\textbf{Solution:} $K=\begin{bmatrix} 0 & -1 & 0 \\ -1 & 5 & -1 \\ 0 & -1 & 0 \end{bmatrix}$. 
+    \item Design a custom kernel of any size and describe how it transforms an input image or what it highlights in an image.
+    %2pts
+\end{enumerate}
+
+\subsection{Kernels applied to an image (10 pts)}
+You discover that your convolutional neural network kernel has learned the following weights (the operation is implemented as a cross-correlation) 
+\begin{align}
+    K=\begin{bmatrix} -0.89 & -0.92 & -0.9  \\ 0.01 & 0.02 & 0.005 \\ 0.9 & 0.92 & 0.89 \end{bmatrix}.
+\end{align}
+
+\begin{enumerate}
+    \item Describe what pattern the kernel is filtering for in one or two sentences. \\
+    \textbf{Solution (5 pts):} The kernel is identifying a horizontal edge from dark to bright (top to bottom). % Rubric: Full points if mentioned edge and what kind of edge. 
+    % If only mention edge: 1 point
+    % If mention horizontal edge: 3 points
+    % If gradient is not mentioned but clear from the image: 4 pts
+    % If correct gradient: 5 points 
+    \item  In the image in Figure \ref{fig:lake}, precisely circle all of the larger area(s) that the output feature map of this convolutional layer activates with high positive values on, and explain in one additional sentence why you circled these area(s). \\
+    \textbf{Solution (5 pts):} (See Figure \ref{fig:lake}) Those are the main areas that have very high activation because we have a abrupt shift from dark above (coastline of the lake, low pixel values) to bright below (water, high pixel values). In the mountains, we have a less clear but similar activation between the dark sky and bright mountain. Of course the filter would also activate on other smaller parts such as the shadows. % Rubric: 
+    % If overall it was assumed that this was a convolution (not a cross-correlation), but it was consistent, I gave 7 pts total. (a) 2 and b) 5))
+    % Same for confusion that dark is high pixel value (deduct 3 pts where confusion is happening)
+    % Total of 6 pts if stating that any horizontal edge was detected and indicatign all horizontal edges in the image
+    % 4pts if assumed all edges (not only horizontal) (3 above and 1 for the image
+    % deduct one point if no description of what can be seen but correct circles
+    % total of 8 points if horizontal edge described correctly with color gradient but mistake in image
+\end{enumerate}
+
+
+
+    \begin{figure}[H]
+    \centering
+    \includegraphics[width=.80\linewidth]{Fall 2024/ProblemSets/img/AnselAdams_Sol.jpg}
+    \caption{``Mount McKinley and Wonder Lake''
+Denali National Park, Alaska, 1947, by Ansel Adams.}
+    \label{fig:lake}
+    \end{figure}
+
+
+\subsection{Convolution and pooling (15 pts)}
+
+\subsubsection{Convolutional layer (10/15 pts)}
+Given an input image 
+\begin{align*}
+    X=\begin{bmatrix} 
+    0 & 0 & 0 & 0 \\ 
+    0 & 1 & 0 & 1 \\ 
+    1 & 0.5 & 1 & 0.5 \\ 
+    0 & 1 & 0 & 1 \end{bmatrix},
+\end{align*}
+ and a kernel $K=\begin{bmatrix} 0 & 2 & 0 \\ 2 & 1 & 1 \\ 0 & 2 & 0 \end{bmatrix}$, compute the feature map (output after the convolution and applying a sigmoid activation function). Modify the input such that the feature map has the same dimension as the original input image. Show the intermediate result after the convolution and before applying the activation function as well as the final feature map. \\
+
+\textbf{Solution:}
+The transformed kernel is $\tilde{K}= \begin{bmatrix} 0 & 2 & 0 \\ 1 & 1 & 2 \\ 0 & 2 & 0 \end{bmatrix}$. Using zero padding and the convolution operation, we compute the feature map as
+
+\begin{align*}
+    X * K &=\begin{bmatrix} 
+    0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 \\ 
+    0 & 0 & 1 & 0 & 1 & 0\\ 
+    0 & 1 & 0.5 & 1 & 0.5 & 0 \\ 
+   0 & 0 & 1 & 0 & 1 & 0 \\
+    0 &0 & 0 & 0 & 0 & 0 \\
+    \end{bmatrix} 
+    * \begin{bmatrix}  0 & 2 & 0 \\ 2 & 1 & 1 \\ 0 & 2 & 0 \end{bmatrix} \\
+    &= \begin{bmatrix} 
+0 & 2 & 0 & 2 \\
+4 & 2 & 5 & 2 \\
+2 & 7.5 & 2.5 & 5.5 \\
+4 & 2 & 5 & 2 \\
+    \end{bmatrix}.
+\end{align*}
+
+After applying the sigmoid activation function, the output becomes 
+
+\begin{align*}
+    \sigma(X * K)
+    &= \begin{bmatrix} 
+0.5 & 0.88 & 0.5 & 0.88 \\
+0.98 & 0.88 & 0.99 & 0.88 \\
+0.88 & 1.00 & 0.92 & 1.00 \\
+0.98 & 0.88 & 0.99 & 0.88 \\
+    \end{bmatrix}.
+\end{align*}
+
+% Rubric: 2 pts for the padding, 2 pts for flipped kernel, 3 pts for the convolution, 3 pt for sigmoid.
+%Loose one point if activation function is forgotten.
+% 8/10 if correlation instead of convolution
+%5/10 if convolution was completely wrong
+
+
+\subsubsection{Pooling layer (2/15 pts)}
+Apply $2\times2$ max pooling to the feature map (no overlap/stride 2). \\
+
+\textbf{Solution:}
+After max pooling, the feature map becomes
+\begin{align*}
+ \begin{bmatrix} 
+    0.98 & 0.99  \\ 
+    1.00 & 1.00 \\ 
+    \end{bmatrix}.
+\end{align*}
+
+
+
+\subsubsection{Discussion (3/15 pts)}
+Describe any problem(s) that you may see in training the model if a feature map like this one was typical for your CNN. \\
+
+
+\textbf{Solution:} 
+\begin{enumerate}
+    \item The results of the sigmoid activation function are very close to $1$, which means that they correspond to values where the activation function is ``saturated''. If we have a deep network with several feature maps with similar outputs, our gradient during backpropagation becomes very small and we might encounter the vanishing gradient problem.
+    \item For deep networks with many of such layers (convolutional layers followed by pooling layers) we drastically reduce the dimension of the input image (we already end up with a feature map of only size $2\times 2$ after this layer). This may not be desired.
+    \item The loss of variation between the areas in the image can also pose a problem, depending on the task the model is trained on.
+\end{enumerate}
+
+ %Rubric: Two of the three problems mentioned above: 3/3 points
+ % If mentioned only one, then 2/3
+ 
+
+\subsection{Pooling transformed into convolution (8 pts)}
+
+How do you represent $2\times2$ average pooling as a convolution? You may show this by the example of $4\times 4$ input data. Provide the kernel size, kernel values, stride, etc.~as appropriate. \\
+
+
+\textbf{Solution:} Convolution with $2\times2$ kernel with values $1/4$, and stride=2.
+
+Using the example feature map from above, 
+
+\begin{align*}
+    X * K &=\begin{bmatrix} 
+0.5 & 0.88 & 0.5 & 0.88 \\
+0.98 & 0.88 & 0.99 & 0.88 \\
+0.88 & 1.00 & 0.92 & 1.00 \\
+0.98 & 0.88 & 0.99 & 0.88 \\
+    \end{bmatrix} 
+    *  \begin{bmatrix}  1/4 & 1/4  \\  1/4 & 1/4  \end{bmatrix} \\
+    &= \begin{bmatrix} 
+    1/4(0.5+ 0.88 + 0.98+ 0.88) &  1/4(0.5+ 0.88 + 0.99+ 0.88) \\ 
+    1/4(0.88+1+0.98+0.88) & 1/4(0.92+1+0.99+0.88)\\ 
+    \end{bmatrix},
+\end{align*}
+which is nothing but average pooling.
+
+% Rubric: Stride not mentioned: 2/8
+
+
+
+\subsection{Dimensions of CNN layers (10 pts)}
+For the CNN shown in Figure \ref{fig:cnn}, write down the dimensions of each each layer and how you computed them. The input image is first increased to $3\times227\times227$ with padding.
+
+{\it Tip: A pooling layer with `stride 2' means that after each pooling operation the next pooling area is 2 pixels apart. A $2\times2$ pooling operation with stride 2 would result in our example from class with no overlap. A $3\times3$ pooling operation with stride 2 has overlap. `Pad 2' refers to padding with 2 pixels on each side.} \\
+
+
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.3]{Fall 2024/ProblemSets/img/PS2_network.png}}
+\caption{Convolutional neural network in simplified form. Note that the input image is first increased to $3\times227\times227$ with padding.} 
+\label{fig:cnn}
+\end{figure}
+
+\textbf{Solution:}
+This network is called AlexNet.
+
+\begin{enumerate}
+    \item $11\times 11$ Conv (96), stride 4: Feature map output $\frac{227-(11-4)}{4}=\frac{227-11}{4}+1= 55$ which yields a layer with $96\times 55 \times 55$ hidden units.
+    \item $3\times 3$ MaxPool, stride 2: Pooling layer output $(55-3)/2+1= 27$ which yields a layer with $96\times 27 \times 27$ hidden units.
+    \item $5\times 5$ Conv (256), pad 2: We first increase the dimension of the input by $2\cdot 2=4$ units because of the padding. Feature map output $((27+4)-5)+1= 27$ which yields a layer with $256 \times 27 \times 27$ hidden units.
+    \item $3\times 3$ MaxPool, stride 2: Pooling layer output $(27-3)/2+1= 13$ which yields a layer with $256\times 13 \times 13$ hidden units.
+    \item $3\times 3$ Conv (384), pad 1, stride 1: Feature map output dimension is $\frac{(13+2\cdot 1)-3}{1}+1= 13$, which yields a layer with $384 \times 13 \times 13$ hidden units.
+    \item $3\times 3$ Conv (384), pad 1, stride 1: Feature map output dimension is $\frac{(13+2\cdot 1)-3}{1}+1= 13$, which yields a layer with $384 \times 13 \times 13$ hidden units.
+    \item $3\times 3$ Conv (256), pad 1, stride 1: Feature map output dimension is $\frac{(13+2\cdot 1)-3}{1}+1= 13$, which yields a layer with $256 \times 13 \times 13$ hidden units.
+    \item $3\times 3$ MaxPool, stride 2: Pooling layer output $(13-3)/2+1= 6$ which yields a layer with $256 \times 6 \times 6$ hidden units.
+    \item Fully connected (4096): $4096$ hidden units
+    \item Fully connected (4096): $4096$ hidden units
+    \item Fully connected (1000): $1000$ hidden units
+\end{enumerate}
+
+% Rubric: Each mistake deduct 1 point, if FC layers not written, also deduct a point
+
+
+\end{document}

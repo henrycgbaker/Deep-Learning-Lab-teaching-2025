@@ -1,0 +1,344 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{tcolorbox}
+
+\title{Problem Set 1 -- Solutions \\
+Deep Learning E1394}
+
+\author{}
+\date{Out on Sept 19, 2025 \\
+Due on Oct 3, 2025, 23:59 \\
+Quiz in labs after due date}
+
+\begin{document}
+
+\maketitle
+
+\noindent \textbf{Submit your written answers as a pdf typed in \LaTeX together with your code. Submit one answer per group (as assigned on Moodle) and include names of all group members in the document. Round answers to two decimal places as needed. Include references to any external sources you have consulted, which includes generative AI tools for which you additionally need to describe what content was generated. Points are deducted if those were used but not cited.
+See ``Submission'' at the bottom of the problem set for more details on how to submit using Github classroom.}
+
+\section{Theoretical part}
+These are some recap and refresher problems to get you up to speed with the mathematics and statistical learning that is behind deep learning, as well as problems that help you work out how neural networks are trained.
+
+
+
+\subsection{Optimization  (10 pts)}
+
+Let $f: \mathbb{R}^3 \rightarrow \mathbb{R}$ be defined by $f(x,y,z)=x^2+y^2+z^2 - xyz$. Identify and classify all critical points of $f$. You may use tools like Wolfram Alpha to help you with eigenvalues.  \\
+
+
+
+\newline
+
+
+\textbf{Solution:}
+
+We have that $\nabla f(x,y)=(2x-yz, \ 2y-xz, \ 2z-xy)$. We have to find $\nabla f(x,y, z)=0$. 
+
+It's easy to see that $x=y=z=0$ is a solution. If we set $2x-yz=0$, and assume 1) $x=2$, and 2) $x=-2$, we can find further solutions. Plugging in $x=2$ and solving leads us to two other critical points: $(2,2,2)$ and $(2,-2,-2)$. With $x=-2$ we get the critical points $(-2,-2,-2)$, $(-2,2,-2)$, and $(-2,2,-2)$.
+
+
+Next we look at the Hessian, which is $$
+H = \begin{bmatrix}
+2 & -z & -y \\ 
+-z & 2 & -x \\ 
+-y & -x & 2
+\end{bmatrix},
+$$ 
+for the second partial derivative test. 
+\begin{itemize}
+    \item For the first critical point $(0,0,0)$, the Hessian is $H = \begin{bmatrix}
+    2 & 0 & 0 \\ 
+    0 & 2 & 0 \\ 
+    0 & 0 & 2
+    \end{bmatrix}$. We know that this matrix is a multiple of the identity matrix, $H=2I$, so it is positive definite and we have a minimum.
+    \item For the critical point $(2,2,2)$, the Hessian becomes $H = \begin{bmatrix}
+    2 & -2 & -2 \\ 
+    -2 & 2 & -2 \\ 
+    -2 & -2 & 2
+    \end{bmatrix}$. The eigenvalues of this matrix are the values that solve the characteristic equation 
+    $det (H-\lambda I)=0$ 
+    \begin{align}
+        det (H-\lambda I)&= (2-\lambda)*[(2-\lambda)^2-4)]+2(-4-4)-2(4+2(2-\lambda)) \\
+        &= -\lambda^3 + 6 \lambda^2 - 32 \\
+        &= (\lambda - 4)(-\lambda^2+2\lambda + 8 ) \\
+        &= -(\lambda - 4)(\lambda - 4)(\lambda + 2).
+    \end{align} 
+    The following eigenvalues solve this equation: $\lambda_1=4$, $\lambda_2=4$ and $\lambda_3=-2$. Since they are both positive and negative eigenvalues, we found a saddle point.
+    
+    \item For (2, -2, -2), we get $H = \begin{bmatrix}
+    2 & 2 & 2 \\ 
+    2 & 2 & -2 \\ 
+    2 & -2 & 2
+    \end{bmatrix}$ which has the same eigenvalues and is also a saddle point.
+    \item The same is true for $(-2,-2,-2)$, $(-2,2,-2)$, and $(-2,2,-2)$.
+\end{itemize}
+
+
+% Rubric:
+% Half a point if so messy or minimal that it is hard to follow.
+% - Deducting one point for small calculation mistake but right answers. Also deducting 0.5-1 points if not clearly stating the assumptions like $x\neq0$.
+% - Deducing one point for other small inaccuracies
+% Missing test of diagonal positive in the second derivative test - deduct 2 
+% Wrong critical point - deduct 3 unless it is a small calculation mistake, then deduct 2
+
+
+
+
+\subsection{Activation functions (10 pts)}
+Compute the gradient of the function 
+\begin{align}
+    f(b,w) = ReLU(b+xw)=\left\{
+    \begin{array}{ll}
+      0  & \text{if} \ \ b+xw <0\\
+      b+xw   & \text{if} \ \  b+xw\geq 0
+    \end{array}
+  \right
+\end{align}
+
+with respect to the parameters $b$ and $w$, with $x,b,w \in \mathbb{R}$. \\
+
+\newline
+
+\textbf{Solution:}
+The gradient is $\nabla f = \left(\frac{\partial f}{\partial b},  \frac{\partial f}{\partial w} \right)$. The components are computed as
+\begin{align}
+  \frac{\partial f}{\partial b} = \left\{
+    \begin{array}{ll}
+      0  & \text{if} \ \ b+xw<0\\
+      1   &  \text{if} \ \ b+xw>0 \\
+      \text{undefined}   & \text{if} \ \ b+xw=0
+    \end{array}
+  \right
+\end{align}
+and 
+\begin{align}
+  \frac{\partial f}{\partial w} = \left\{
+    \begin{array}{ll}
+      0  & \text{if} \ \ b+xw<0\\
+      x   &  \text{if} \ \ b+xw>0 \\
+      \text{undefined}   & \text{if} \ \ b+xw=0.
+    \end{array}
+  \right
+\end{align}
+
+The derivative of the ReLU is undefined where the argument is 0. 
+
+% Rubric: 
+% Forgetting the undefined case: Deduct 4 points
+% Describing undefined but still using greater/equal: deduct 1 point
+% The result is correct but the derivations are wrong: 8 total
+
+
+\subsection{Overfitting (10 pts)}        
+
+This question will test your general understanding of overfitting as it relates to model complexity and training set size. Consider a continuous domain and a smooth joint distribution over inputs and outputs, so that no test or training case is ever duplicated exactly. {\it The graphs in your solutions should be drawn on paper and then included as a picture. In your answers describe how how your graphs should be read.}
+
+\subsubsection{Error rate versus dataset size (3/10 pts)}    
+Sketch a graph of the typical behavior of training error rate (y-axis) as a function of training set size (x-axis). Add to this graph a curve showing the typical behavior of test error rate versus training set size, on the same axes. (Assume that we have an infinite test set drawn independently from the same joint distribution as the training set). Indicate on your y-axis where zero error is and draw your graphs with increasing error upwards and increasing training set size rightwards. \\
+
+\textbf{Solution:}
+    Figure \ref{fig:modelcompl} (b) illustrates typical relation between (training and testing) error rate and training data size. Consider a model with fixed complexity. When we have only small amount of training data, the model is able to memorize the data, resulting in overfit. As the training data size increases, the model instead learns the distribution of the data (as best as it can). Thus, the training error increases and testing error decreases. Note that, the training error will usually be lower than testing error because we can not avoid the model to learn a certain amount of idiosyncrasy from the training data.
+
+\subsubsection{Error rate versus model complexity (3/10 pts)}
+For a fixed training set size, sketch a graph of the typical behavior of training error rate (y-axis) versus model complexity (x-axis). Add to this graph a curve showing the typical behavior of the corresponding test error rate versus model complexity, on the same axes (again on an IID infinite test set). Show where on the x-axis you think is the most complex model that your data supports (mark this with a vertical line). Choose the x-range so that this line is neither on the extreme left nor on the extreme right. Indicate on your vertical axis where zero error is and draw your graphs with increasing error upwards and increasing complexity rightwards. \\
+
+    \textbf{Solution:}
+    Figure \ref{fig:modelcompl} (a) illustrates typical relation between (training and testing) error rate and model complexity. When the model complexity is low, the expressive power of the model is too weak to explain the data, thus the error rate is high for both training and testing data. As the complexity increases, the error rate drops until the optimal complexity (noted with vertical line). After the optimal complexity, the expressive power become too strong such that the model overfits the training data (it basically memorizes the training data). So, the error rate drops for training data but increases for testing data.
+    
+\subsubsection{Training epochs (4/10 pts)}
+Use a similar graph to illustrate the error rate as a function of training epochs in neural networks. One of the commonly used regularization methods in neural networks is early stopping. Describe (also using the graph) how early stopping is applied, and argue qualitatively why (or why not) early stopping is a reasonable regularization metric. 
+    \\
+    
+    \textbf{Solution:}
+    Figure \ref{fig:modelcompl} (c) illustrates typical relation between (training and testing) error rate and number of epochs trained. The vertical line marks the optimal training epoch amount. The early stopping technique is a effective regularization method because the slope of the testing error is close to zero around the optimal point, before the testing error starts to increase. Even if we stop training early (not by too much), we can still get a model that has performance comparable to that of the optimal model. With early stopping, however, we may also find a local minimum and the test error decreases again after briefly increasing.
+
+    \begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.3]{Fall 2024/ProblemSets/img/model_complexity_solution.png}}
+\caption{Error rate plotted against (a) model complexity (b) data size (c) number of epochs trained. Source: Dheeraj Rajagopal and Yao-Hung (Hubert) Tsai}
+\label{fig:modelcompl}
+\end{figure}
+
+% Rubric:
+% - No description but right graph - deduct one point.
+% - mistake: deduct 0.5 to 1 point.
+
+\subsection{Capacity of a neural network (10 pts)}
+We have a single hidden-layer neural network with two hidden units, and data with 2 features $X=(x_1,x_2)$. Design an activation function $g(\cdot)$ applied in the hidden layer, and an output activation function  $o(\cdot)$ applied in the output layer, as well as a set of values of the weights that will create a logistic regression model where the input to the logistic function is of the form: $\beta_0 + \beta_1 x_1 x_2$.\\
+
+\textbf{Solution:}
+Fully-connected neural networks have additive weights (as linear combinations/weighted sums), which cannot directly compute products of/interactions between features like $x_1 x_2$ with the standard activation functions. The solution requires non-standard activations.\\
+
+The network is
+\begin{align}
+    f(\theta; x) =o(a(\theta; x))&=o\left(b^{[2]}+\sum_{i=1}^{H^{[1]}} w_i^{[2]} h_i^{[1]} \right) \\
+    &=o\left(b^{[2]}+\sum_{i=1}^{H^{[1]}} w_i^{[2]} g\left(b_i^{[1]}+\sum_{j=1}^d w_{ij}^{[1]} x_j \right) \right)
+\end{align}
+
+We define the activation function in the hidden layer as $g(z)=z^2$ and the output activation function to be the sigmoid $o(z)=\frac{1}{1+e^{-z}}$. When then choose the parameters of the output layer as $b^{[2]}=\beta_0$, $w_1^{[2]}=\frac{1}{4}\beta_1$, and $w_2^{[2]}=-\frac{1}{4}\beta_1$. The weights of the hidden layer are $b_1^{[1]}=b_2^{[1]}=0$ and $w^{[1]}=\begin{bmatrix} 1 & 1 \\ 1 & -1 \end{bmatrix}$.
+
+\begin{align}
+    a(\theta; x)
+    &=b^{[2]}+\sum_{i=1}^{H^{[1]}} w_i^{[2]} g\left(b_i^{[1]}+\sum_{j=1}^d w_{ij}^{[1]} x_j \right) \\
+    &=\beta_0+\frac{1}{4} \beta_1(x_1+x_2)^2 - \frac{1}{4}\beta_1 (x_1-x_2)^2 \\
+    &=\beta_0+\frac{1}{4}\beta_1 (x_1^2+2x_1x_2+x_2^2-x_1^2+2x_1x_2-x_2^2) \\
+    &=\beta_0+\frac{1}{4} \beta_1 4 x_1x_2 \\
+    &=\beta_0+ \beta_1x_1x_2.
+\end{align}
+
+With this, we have the output 
+$$f(x) = \frac{1}{1+e^{-(\beta_0+ \beta_1x_1x_2)}}.$$
+
+% Rubric: deduct 1 point for messy derivation.
+% 2 points total if activation function was wrong (e.g. g(z)=z)
+
+\subsection{Neural network theory (10 pts)}\label{sec:part1}
+Derive the weight updates in gradient descent for a neural network with 2 hidden layers (superscripts $[1]$ and $[2]$) that each have $H^{[1]}$ and $H^{[2]}$ hidden units respectively. The output layer has superscript $[3]$, and we want to classify the data into $K$ classes.
+
+The output of the network for classes $k=1,2,...,K$ and one data point $x\in \mathbb{R}^d$ can be written as such:
+      \begin{align}
+          f_k(\theta; X)&= o(a_k^{[3]}) = o(b_k^{[3]}+\sum_{m=1}^{H^{[2]}} w_{km}^{[3]} h_m^{[2]}) \\ 
+          h_m^{[2]} &= \sigma\left(a_m^{[2]} \right)  = \sigma\left(b_m^{[2]}+\sum_{i=1}^{H^{[1]}} w_{mi}^{[2]} h_i^{[1]} \right) \\
+          h_i^{[1]} &= \sigma\left(a_i^{[1]} \right) = \sigma\left(b_i^{[1]}+\sum_{j=1}^d w_{ij}^{[1]} x_j \right), 
+      \end{align}
+where $\theta$ indicates the vector of all weights and biases. 
+
+While this is typically not recommended, in this exercise we use a a quadratic loss function for classification. We use a softmax activation function at the output layer and a ReLU activation function at the hidden layers. Derive the the weight update for the weights of the first hidden layer $w_{ij}^{[1]}$. Start by stating the gradient descent weight update for the $(r+1)^{th}$ iteration as a function of the $(r)^{th}$ iteration, and then compute the partial derivative needed in the update. 
+
+{\it  Show all the steps in your derivation. You may use the derivatives for activation functions introduced in class. There is no need to show the derivations of those.} \\
+
+
+
+\textbf{Solution:}
+The loss function for one data point is $L(f(X), y)=\sum_{k=1}^K \left(y_k- f_k(X) \right)^2$.
+
+The gradient update is 
+\begin{align}
+   (w_{ij}^{[1]})^{r+1} = (w_{ij}^{[1]})^{r} + \eta (\Delta w_{ij}^{[1]})^r  
+\end{align}
+with $\Delta w_{ij}^{[1]}=-\frac{\partial L(f(X), y; w_{ij}^{[1]})}{\partial w_{ij}^{[1]}}$ and the learning rate $\eta$.
+
+By the chain rule, we can express the gradient as 
+\begin{align}
+    \frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}} = \sum_{k=1}^K\frac{\partial L}{\partial f_k} \sum_{l=1}^K\frac{\partial f_k}{\partial a_l^{[3]}} \sum_{m=1}^{H^{[2]}}\frac{\partial a_l^{[3]}}{{\partial h_m^{[2]}}} \frac{{\partial h_m^{[2]}}}{\partial a_m^{[2]}} \frac{\partial a_m^{[2]}}{{\partial h_i^{[1]}}} \frac{{\partial h_i^{[1]}}}{\partial a_i^{[1]}} \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}}, \\
+    %=\sum_{k=1}^K\frac{\partial L}{\partial a_k^{[3]}} \sum_{m=1}^{H^{[2]}}\frac{\partial a_k^{[3]}}{{\partial h_m^{[2]}}} \frac{{\partial h_m^{[2]}}}{\partial a_m^{[2]}} \frac{\partial a_m^{[2]}}{{\partial h_i^{[1]}}} \frac{{\partial h_i^{[1]}}}{\partial a_i^{[1]}} \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}} 
+\end{align}
+note that the each output node is a function of all activations $f_k(a_1, ..., a_k, ..., a_K)=\frac{a_k}{\sum_l^Ka_l}$ since we are using the softmax.
+The partial derivatives then compute as
+\begin{align}
+    \frac{\partial L}{\partial f_k} &= -2(y_k-f_k(X))\\
+    \frac{\partial f_k}{\partial a_l^{[3]}} &= \frac{\partial o(a^{[3]})_l}{\partial a_l^{[3]}} \\
+    &= o(a^{[3]})_k(\delta_{kl}-o(a^{[3]})_l) \\
+    \frac{\partial a_l^{[3]}}{{\partial h_m^{[2]}}} &= w_{lm}^{[3]}  \\
+    \frac{{\partial h_m^{[2]}}}{\partial a_m^{[2]}} &=    \left\{
+    \begin{array}{l}
+      0  \ \text{if} \ a_m^{[2]}<0\\
+      1   \  \text{if} \ a_m^{[2]} >0 \\
+      \text{undefined}  \  \text{if} \ a_m^{[2]} = 0
+    \end{array}
+  \right \\
+  \frac{\partial a_m^{[2]}}{{\partial h_i^{[1]}}} &= w_{mi}^{[2]} \\
+  \frac{{\partial h_i^{[1]}}}{\partial a_i^{[1]}} &=     \left\{
+    \begin{array}{l}
+      0  \ \text{if} \ a_i^{[1]}<0\\
+      1   \  \text{if} \ a_i^{[1]} >0 \\
+      \text{undefined}  \  \text{if} \ a_i^{[1]} = 0
+    \end{array} \\
+  \frac{\partial a_i^{[1]}}{\partial w_{ij}^{[1]}} &= x_j.
+\end{align}
+
+
+This results in our gradient update 
+\begin{align}
+    \Delta w_{ij}^{[1]} &= -\frac{\partial L(f(X), y)}{\partial w_{ij}^{[1]}}  \nonumber \\
+    &=   \sum_{k=1}^K 2(y_k-f_k(X))
+    \sum_{l=1}^Ko(a^{[3]})_k(\delta_{kl}-o(a^{[3]})_l)
+    \sum_{m=1}^{H^{[2]}}
+    w_{km}^{[3]} 
+    w_{mi}^{[2]}
+    x_j \nonumber \\
+ \ & \text{if} \ a_m^{[2]} >0  \ \text{and} \ a_i^{[1]} >0, 
+\end{align}
+and undefined for $a_m^{[2]} = 0$ or  $a_i^{[1]} = 0$, and $\Delta w_{ij}^{[1]} =0 $ otherwise.
+
+
+
+
+% Rubric:
+% - Not providing details on the derivatives: 2 points deducted
+% - Missing sum: 2 points deducted
+% Missing sums over classes: 1 point deducted
+% - Mistake with derivative of softmax and missing sum: 1 point deducted
+% - Wrong sum included or larger mistake: 1 point deducted
+% - Missing that undefined for a=0: 1 point deducted; entirely not distinguishing cases: 2 points deducted
+% - Small mistakes: 0.5 deducted
+% - only weight instead of bias: 1 point
+% computed the gradient for the wrong parameter: deduct 4 pts
+% Compute it with the delta function without parsing things together as one expression: deduct 2 points
+% didn't deduct points for some indices wrong
+
+
+
+\section{Neural network implementation}
+
+You will implement different classes representing a fully connected neural network for image classification problems. 
+There are two classes of neural networks: one using only Numpy and one using PyTorch. \newline \newline
+For each approach, a Python template is supplied that you will need to complete with the missing methods. Feel free to play around with the rest, but please do not change anything else for the submission. All approaches will solve the same classification task, which will help you validate that your code is working and that the network is training properly. \newline \newline
+For this problem, you will work with the \href{https://en.wikipedia.org/wiki/MNIST_database}{MNIST dataset} of handwritten digits, which has been widely used for training image classification models. You will build models for a multiclass classification task, where the goal is to predict what digit is written in an image (to be precise, this is a k-class classification task where in this case $K = 10$). The MNIST dataset consists of black and white images of digits from 0 to 9 with a pixel resolution of 28x28. Therefore, in a tensor representation the images have the shape 28x28x1. The goal is to classify what digit is drawn on a picture using a neural network  defined by the following parameters:
+\begin{itemize}
+    \setlength\itemsep{0em}
+    \item a list defining the number of neurons in each layer, e.g. list $l = [2^6, 2^4, 3]$ defines a network with 3 hidden layers of dimensions $2^6, 2^4$ and 3.
+    \item sigmoid activation function for all hidden layers
+    \item softmax activation function for the output layer
+    \item Mean Squared Loss Function.\text{*}
+\end{itemize}
+\text{*} This loss function is not recommended for a classification task, but we use it to simplify the implementation.
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.2]{Fall 2025/Quiz/img/MNIST-few-examples.png}}
+\caption{Example images from MNIST dataset with 28x28 pixel resolution.}
+\end{figure}
+The training set has $n$ data vectors with:
+\begin{align}
+    (x^{(i)}, y^{(i)}), \  i = 1, . . . , n,
+\end{align}
+with $y^{(i)} \in \{0, 1\}^{k}$ is the one-hot encoded target vector. The output of the model in the forward step should be a vector of probabilities. The predict step should instead return the most likely output class.  
+
+\subsection*{Submission}
+The submission of the whole problem set is done via GitHub classroom. You have to register for the assignment with your GitHub account at \textbf{\url{https://classroom.github.com/a/WPCxMZMM}}; a repository will be automatically created. Please make sure that your GitHub account profile includes your real name and that the team names are exactly those assigned in Moodle.\newline \newline
+Please push all solutions to the GitHub repository. The theoretical part should be uploaded as a single PDF, the practical as code. Multiple submits are allowed, the latest one will be graded. Once the deadline has passed, you will be able to push but points will be deducted for every late day. Please also submit the PDF with the answers to the theoretical part to Moodle as well.
+\newline \newline Please add team number, team member names and matriculation numbers also as a comment at the top of the Jupyter notebook and make sure that the uploaded Notebook shows printed training and validation progress. Include the team number in the file name of the PDF. \newline \newline
+Note that the classifier does not need to get anywhere close to 100\% accuracy. Instead, the training output should indicate that the model learns something, i.e.~the accuracy increases over the epochs on the training data and is significantly better than random guessing.
+
+\subsection*{Tasks}
+\begin{enumerate}
+    \item (15 pt) Complete the code for the feed-forward neural network classes from scratch in file \verb|scratch\network.py| and using PyTorch in file \verb|pytorch\network.py| by implementing forward, backward, weight update and prediction methods.
+    \item (15 pt) Add a residual connection to the hidden layer of the feed-forward neural network: instead of just outputting the activated neuron, the layer should add the input to the hidden layer to it. Implement the initialization, forward and backward step of the residual network from scratch in \verb|scratch\res_network.py|. The class inherits from the class created in 1. 
+    \item (5 pt) Implement a cosine annealing learning rate scheduler for the \verb|scratch\network.py|. The scheduler should decrease the learning rate $\ell_t$ according to the formula: 
+    $$\ell_t=\ell_T+\frac{\ell_0-\ell_T}{2}\left(1+\cos \left(\frac{\pi t}{T}\right)\right)$$
+    where $\ell_0$ is the initial learning rate, $\ell_T$ is the final learning rate after $T$ iterations. 
+    \item (10 pt) Show how your networks perform on the MNIST classification task in \verb|MNIST_classification.ipynb| and plot the accuracy of each neural network on the training and on the validation set. 
+    \item (5 pt) Optional: try different hyperparameters and evaluate the trained networks. Briefly comment your results.
+\end{enumerate}
+
+\newline
+
+\textbf{Solution:}
+Find the solutions to the this problem here: \url{https://github.com/hertie-data-science-lab/deep-learning-2025-assignment-1}.
+
+
+
+
+
+\end{document}

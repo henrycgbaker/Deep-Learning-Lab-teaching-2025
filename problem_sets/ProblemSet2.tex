@@ -1,0 +1,116 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{comment}
+\usepackage{hyperref}
+
+\title{Problem Set 2 \\
+Deep Learning E1394}
+
+\author{}
+\date{Out on Oct 3, 2025 \\
+Due on Oct 17, 2025, at 23:59}
+
+\begin{document}
+
+\maketitle
+
+\noindent \textbf{Submit your written answers as a pdf typed in \LaTeX together with your code. Submit one answer per group (as assigned on Moodle) and include names of all group members in the document. Round answers to two decimal places as needed. Include references to any external sources you have consulted, which includes generative AI tools for which you additionally need to describe what content was generated. Points are deducted if those were used but not cited.
+See ``Submission'' at the bottom of the problem set for more details on how to submit using Github classroom.}
+\section{Convolutional neural networks}
+
+\subsection{Kernels (7 pts)}
+\begin{enumerate}[label=(\alph*)]
+    \item Design a $3\times3$ kernel that leaves the input image unchanged. Describe also how you may need to modify the input image before applying the kernel so that the output stays the same. \\
+    \item How does the following kernel modify an input image: $K=\frac{1}{16}\begin{bmatrix} 1 & 1 & 1 &1 \\ 1 & 1 & 1 &1 \\ 1 & 1 & 1 &1 \\ 1 & 1 & 1 &1 \end{bmatrix}$? \\     
+    \item Design a custom kernel of any size and describe how it transforms an input image or what it highlights in an image.
+\end{enumerate}
+
+\subsection{Kernels applied to an image (10 pts)}
+You discover that your convolutional neural network kernel has learned the following weights (the operation is implemented as a cross-correlation) 
+\begin{align}
+    K=\begin{bmatrix} -0.89 & -0.92 & -0.9  \\ 0.01 & 0.02 & 0.005 \\ 0.9 & 0.92 & 0.89 \end{bmatrix}.
+\end{align}
+
+\begin{enumerate}
+    \item Describe what pattern the kernel is filtering for in one or two sentences. \\
+    \item  In the image in Figure \ref{fig:lake}, precisely circle all of the larger area(s) that the output feature map of this convolutional layer activates with high positive values on, and explain in one additional sentence why you circled these area(s). \\
+\end{enumerate}
+
+
+    \begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=.80\linewidth]{Fall 2024/ProblemSets/img/AnselAdams.jpg}
+    \caption{``Mount McKinley and Wonder Lake''
+Denali National Park, Alaska, 1947, by Ansel Adams.}
+    \label{fig:lake}
+    \end{figure}
+
+
+\subsection{Convolution and pooling (15 pts)}
+
+\subsubsection{Convolutional layer (10/15 pts)}
+Given an input image 
+\begin{align*}
+    X=\begin{bmatrix} 
+    0 & 0 & 0 & 0 \\ 
+    0 & 1 & 0 & 1 \\ 
+    1 & 0.5 & 1 & 0.5 \\ 
+    0 & 1 & 0 & 1 \end{bmatrix},
+\end{align*}
+ and a kernel $K=\begin{bmatrix} 0 & 2 & 0 \\ 2 & 1 & 1 \\ 0 & 2 & 0 \end{bmatrix}$, compute the feature map (output after the convolution and applying a sigmoid activation function). Modify the input such that the feature map has the same dimension as the original input image. Show the intermediate result after the convolution and before applying the activation function as well as the final feature map. \\
+
+
+
+
+\subsubsection{Pooling layer (2/15 pts)}
+Apply $2\times2$ max pooling to the feature map (no overlap/stride 2). \\
+
+
+
+
+\subsubsection{Discussion (3/15 pts)}
+Describe any problem(s) that you may see in training the model if a feature map like this one was typical for your CNN. \\
+
+
+\subsection{Pooling transformed into convolution (8 pts)}
+
+How do you represent $2\times2$ average pooling as a convolution? You may show this by the example of $4\times 4$ input data. Provide the kernel size, kernel values, stride, etc.~as appropriate. \\
+
+
+
+\subsection{Dimensions of CNN layers (10 pts)}
+For the CNN shown in Figure \ref{fig:cnn}, write down the dimensions of each each layer and how you computed them. The input image is first increased to $3\times227\times227$ with padding.
+
+{\it Tip: A pooling layer with `stride 2' means that after each pooling operation the next pooling area is 2 pixels apart. A $2\times2$ pooling operation with stride 2 would result in our example from class with no overlap. A $3\times3$ pooling operation with stride 2 has overlap. `Pad 2' refers to padding with 2 pixels on each side.}
+
+\begin{figure}[!htbp]
+\centerline{\includegraphics[scale=0.3]{Fall 2024/ProblemSets/img/PS2_network.png}}
+\caption{Convolutional neural network in simplified form. Note that the input image is first increased to $3\times227\times227$ with padding.} 
+\label{fig:cnn}
+\end{figure}
+
+\section{Identifying land use with CNN}
+You will create an image classifier using PyTorch to identify land use and land cover for the EuroSAT database (\hyperlink{https://github.com/phelber/eurosat}{link}). All tasks are described in their specific sections and marked by \texttt{\#TODO}. You may need to import additional libraries, but do not change the existing trainer and input of the functions. Sometimes, a brief comment on your implementation is required: add the answers to these questions directly below the code. Remember to always show the code output in the final upload.
+\begin{enumerate}
+    \setlength\itemsep{0em}
+\item Transform the data (10 pt)
+\item Implement your Convolutional Neural Network (15 pt)
+\item Tune the model hyperparameters (optional, max 10 pt)
+\item Load and fine-tune a pre-trained model (10 pt)
+\item Compare models and discuss results (5 pt)
+\end{enumerate}
+\section*{Submission}
+The submission of the whole problem set is done via GitHub classroom. You have to register for the assignment with your GitHub account at \textbf{\url{https://classroom.github.com/a/Pj6Hy7cJ}}. Please make sure that your GitHub account profile includes your real name. When starting the assignment, please create or join a team according to the teams assigned in Moodle (use the exact team name from Moodle).
+Please upload / push all solutions to the GitHub repository which was created for your team. Please upload your solutions for the theoretical part (1) as a PDF to GitHub. If you upload multiple PDF files, please indicate in the file name to which subtask they are corresponding (we much prefer one single pdf). For the practical part (2), just push your code changes to the existing files.
+Anybody in your team can push as often as they want. Once the deadline has passed, you are not able to push to your repository anymore and all changes on your \textbf{main} branch will be considered for grading. 
+
+
+\end{document}

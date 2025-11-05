@@ -1,0 +1,79 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{color}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage[margin=1in]{geometry}
+\usepackage{tcolorbox}
+
+\title{Problem Set 3 -- LLMs for Policy Analysis \\
+Deep Learning E1394}
+
+\author{}
+\date{Out on [Date]\\
+Due on [Date], at 23:55}
+
+\begin{document}
+
+\maketitle
+
+\noindent \textbf{This problem set is entirely based on coding. Submit any written answers as a pdf typed in \LaTeX{} together with your code. Submit one answer per group (as assigned on Moodle) and include names of all group members in the document. Round answers to two decimal places as needed.}
+
+\section{Policy Text Classification with Open Source LLMs}
+
+You will use open-source LLMs to automatically classify climate policy text. This workflow mirrors real applications where researchers and policymakers process thousands of documents efficiently. These ''small'' open source LLMs have the additional advantages of being transparent \& auditable, cheap (no API fees), private, and customisable (as we will see as we go about fine-tuning them).
+
+\subsection{Dataset Options: Choose One}
+
+You will choose \textbf{ONE} of two datasets. Both are policy-relevant but present different challenges. \textbf{Your choice will not affect your grade}.
+
+\subsubsection{Option A: National Climate Targets}
+
+\textbf{Dataset}: \texttt{ClimatePolicyRadar/national-climate-targets} \\
+\textbf{Suggested model to use}: GPT-2 (124M parameters) \\
+\textbf{Policy Task}: automatically identify what types of commitments countries have made (a multi-label classification exercise); this can be used to track global climate ambition, identify gaps, and compare national policies.
+
+\begin{tcolorbox}
+    NB: Multi-label classification requires additional evaluation metrics (Hamming loss, Jaccard score). These can be imported from \texttt{sklearn.metrics} (as is already done for you in the notebook).
+\end{tcolorbox}
+
+\subsubsection{Option B: TCFD Corporate Disclosure}
+
+\textbf{Dataset}: \texttt{climatebert/tcfd\_recommendations} \\
+\textbf{Suggested model to use}: TinyLlama (1.1B parameters) \\
+\textbf{Task}: classify corporate climate disclosures into TCFD categories; the TCFD framework is used globally for corporate climate reporting by investors, climate institutions and researchers.
+
+\begin{tcolorbox}
+    NB: Given the label imbalance of the TCFD dataset, use \texttt{TinyLlama} (1.1B parameters) for this task. This is a larger, chat-tuned model that should cope better with the dataset constraints, but will require more compute (time \& resources), so bear this in mind!
+\end{tcolorbox}
+
+
+\subsection{Tasks}
+
+All tasks are described in the provided Jupyter notebook and marked by \texttt{\#TODO}. Sometimes brief written reflection is required: add answers directly below the code cells. Remember to always show the code output in the final upload.
+
+\begin{enumerate}
+    \setlength\itemsep{0em}
+    \item Load data and explore label distribution (10 pt)
+    \item Zero-shot evaluation with prompt engineering (15 pt)
+    \item Few-shot evaluation with in-context examples (10 pt)
+    \item LoRA fine-tuning for 10 epochs (15 pt)
+    \item Comprehensive evaluation and error analysis (10 pt)
+\end{enumerate}
+
+
+\begin{tcolorbox}[title=Note on Prompt Engineering]
+For this exercise it's fine if your prompt engineering efforts don't significantly improve performance. Small models often struggle with complex prompts. Your reflection on \textit{why} this might be happening / what you might do to mitigate is more important than achieving high scores.
+\end{tcolorbox}
+
+\section*{Submission}
+The submission of the whole problem set is done via GitHub classroom. You have to register for the assignment with your GitHub account at \textbf{\url{https://classroom.github.com/a/Pj6Hy7cJ}}. Please make sure that your GitHub account profile includes your real name. When starting the assignment, please create or join a team according to the teams assigned in Moodle (use the exact team name from Moodle).
+Please upload / push all solutions to the GitHub repository which was created for your team. Please upload your solutions for the theoretical part (1) as a PDF to GitHub. If you upload multiple PDF files, please indicate in the file name to which subtask they are corresponding (we much prefer one single pdf). For the practical part (2), just push your code changes to the existing files.
+Anybody in your team can push as often as they want. Once the deadline has passed, you are not able to push to your repository anymore and all changes on your \textbf{main} branch will be considered for grading. 
+
+\end{document}
